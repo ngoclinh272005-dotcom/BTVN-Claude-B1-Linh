@@ -1,25 +1,29 @@
-# 🏭 Tính giá sản xuất & Quyết định Launching
+# 🏭 Avielora · Tính giá sản xuất & Quyết định Launching
 
-Mini tool web giúp người làm thương mại điện tử **so sánh báo giá sản xuất từ nhiều NSX (nhà sản xuất) ở các mức MOQ khác nhau (mặc định MOQ 20 và MOQ 100)**, đối chiếu với giá brand gốc, và đưa ra **khuyến nghị có nên launch sản phẩm hay không**.
+Mini tool web giúp **so sánh giá sản xuất từ nhiều NSX (nhà sản xuất) ở MOQ 20 / 100**, đối chiếu với **giá sản xuất mong muốn** (suy ra từ giá brand gốc), và đưa ra **quyết định có nên launch sản phẩm hay không**.
+
+Giao diện theo brand **Avielora**: font Lora (heading) + Inter (body), màu chủ đạo `#321646`, logo ở đầu trang.
 
 ## ✨ Tính năng
 
-- Nhập giá brand gốc + giá bán dự kiến + margin tối thiểu mong muốn.
-- Thêm/xóa nhiều NSX, mỗi NSX có: đơn giá @MOQ thấp, đơn giá @MOQ cao, phí khuôn/setup (1 lần), phí ship + thuế / đơn vị.
-- Tự động tính cho từng NSX × từng MOQ:
-  - Giá vốn thực/SP (đã **phân bổ phí khuôn** theo số lượng)
-  - Tổng vốn đầu tư, lợi nhuận/SP, **margin %**
-  - **Chênh lệch so với brand gốc** (rẻ hơn bao nhiêu %)
-  - Tổng lợi nhuận nếu bán hết + điểm hòa vốn
-  - **Nhãn quyết định:** 🟢 NÊN LAUNCH / 🟡 CÂN NHẮC / 🔴 KHÔNG
-- Banner tự highlight **phương án tốt nhất**.
-- Lưu dữ liệu bằng `localStorage`, xuất **CSV**, có dữ liệu mẫu.
+**1. Thông số sản phẩm**
+- Giá brand gốc (USD), giá vải (RMB, nhập tay), tỉ giá USD→RMB (mặc định 7.2).
+- Tự tính **Giá sản xuất mong muốn** làm ngưỡng mục tiêu để đối chiếu (hiển thị RMB & USD).
+
+**2. Báo giá NSX**
+- Mỗi NSX nhập: tên, giá công may @MOQ 20, giá công may @MOQ 100.
+- Tự tính **Giá SX tổng** cho cả mức MOQ thấp và cao.
+
+**3. Bảng so sánh & quyết định** (so sánh ở mức MOQ cao)
+- Hiển thị giá SX tổng (RMB & USD), giá mong muốn và **chênh lệch** so với ngưỡng mục tiêu.
+- Tự gắn nhãn quyết định **🟢 Nên launch / 🟡 Cân nhắc / 🔴 Chưa nên launch**.
+- Banner tự highlight phương án tốt nhất, và cột **"Chọn SX"** để bạn chốt NSX sẽ sản xuất.
+
+Có lưu dữ liệu (`localStorage`), xuất **CSV**, và nút dữ liệu mẫu.
 
 ## 🚀 Cách dùng
 
-Không cần cài đặt hay hosting. Chỉ cần **mở file `index.html` bằng trình duyệt** (Chrome/Safari/Edge...).
-
-Hoặc bấm nút **"Dùng dữ liệu mẫu"** để xem ngay một ví dụ.
+Không cần cài đặt hay hosting. Mở file **`index.html`** bằng trình duyệt là chạy. Bấm **"Dùng dữ liệu mẫu"** để xem ví dụ ngay.
 
 ## 🛠️ Công nghệ
 
@@ -30,6 +34,7 @@ HTML + CSS + JavaScript thuần (không framework, không backend).
 ```
 production-cost-tool/
 ├── index.html        # Toàn bộ tool (UI + logic)
+├── assets/logo.png   # Logo Avielora
 ├── README.md
 └── chat-history.txt  # Lịch sử trò chuyện với Claude Code (/export)
 ```
