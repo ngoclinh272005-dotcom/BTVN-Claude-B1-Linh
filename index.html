@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tính giá sản xuất & Quyết định Launching</title>
+<style>
+  :root{
+    --bg:#f4f6fb; --card:#ffffff; --ink:#1f2533; --muted:#6b7385;
+    --line:#e3e8f2; --brand:#3b6ef5; --brand-d:#2c52c4;
+    --green:#16a34a; --green-bg:#e8f7ee;
+    --amber:#d97706; --amber-bg:#fdf3e3;
+    --red:#dc2626;  --red-bg:#fdeaea;
+    --shadow:0 1px 3px rgba(20,30,60,.07),0 8px 24px rgba(20,30,60,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5}
+  header{background:linear-gradient(135deg,#3b6ef5,#5b3df5);color:#fff;padding:26px 20px}
+  header .wrap{max-width:1180px;margin:0 auto}
+  header h1{margin:0 0 4px;font-size:22px;letter-spacing:.2px}
+  header p{margin:0;opacity:.92;font-size:14px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  main{padding:22px 0 60px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 14px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .card h2 .n{background:var(--brand);color:#fff;width:24px;height:24px;border-radius:7px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+  .grid{display:grid;gap:14px}
+  .grid.p4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.grid.p4{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.grid.p4{grid-template-columns:1fr}}
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
+    font-size:14px;background:#fbfcfe;color:var(--ink);transition:.15s}
+  input:focus,select:focus{outline:none;border-color:var(--brand);background:#fff;
+    box-shadow:0 0 0 3px rgba(59,110,245,.12)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{background:#f0f3fb;color:var(--muted);font-weight:700;font-size:12px;
+    text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+  .nsx-table input{padding:7px 8px;font-size:13px;min-width:90px}
+  .nsx-table td:first-child input{min-width:130px}
+  .btn{border:none;border-radius:9px;padding:9px 15px;font-size:13.5px;font-weight:600;
+    cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-d)}
+  .btn-ghost{background:#eef2fb;color:var(--brand-d)}
+  .btn-ghost:hover{background:#e0e8fb}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .icon-del{background:var(--red-bg);color:var(--red);border:none;border-radius:7px;
+    width:30px;height:30px;cursor:pointer;font-size:16px;line-height:1}
+  .icon-del:hover{background:#fbd5d5}
+  /* result table */
+  .res-table td:first-child{font-weight:600}
+  .moq-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;
+    background:#eef2fb;color:var(--brand-d)}
+  .pill{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .pill.go{background:var(--green-bg);color:var(--green)}
+  .pill.warn{background:var(--amber-bg);color:var(--amber)}
+  .pill.no{background:var(--red-bg);color:var(--red)}
+  .pos{color:var(--green);font-weight:600}
+  .neg{color:var(--red);font-weight:600}
+  .best-row{background:linear-gradient(90deg,rgba(22,163,74,.08),transparent)}
+  .star{color:#eab308}
+  /* banner */
+  .banner{border-radius:14px;padding:18px 20px;margin-bottom:18px;color:#fff;
+    background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:var(--shadow)}
+  .banner.empty{background:linear-gradient(135deg,#64748b,#475569)}
+  .banner.bad{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+  .banner h3{margin:0 0 6px;font-size:18px}
+  .banner p{margin:0;font-size:14px;opacity:.95}
+  .banner .big{font-size:15px;font-weight:700}
+  .empty-msg{text-align:center;color:var(--muted);padding:26px;font-size:14px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:10px}
+  details summary{cursor:pointer;font-size:13px;color:var(--brand-d);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🏭 Tính giá sản xuất &amp; Quyết định Launching</h1>
+    <p>So sánh giá nhiều NSX ở MOQ 20 / MOQ 100, đối chiếu brand gốc → biết nên launch sản phẩm nào, ở đâu, số lượng bao nhiêu.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. SẢN PHẨM -->
+  <section class="card">
+    <h2><span class="n">1</span> Thông số sản phẩm &amp; brand gốc</h2>
+    <div class="grid p4">
+      <div>
+        <label>Tên sản phẩm</label>
+        <input id="pName" type="text" placeholder="VD: Áo hoodie nỉ bông" />
+      </div>
+      <div>
+        <label>Giá brand gốc (giá thị trường) — đ</label>
+        <input id="brandPrice" type="number" min="0" placeholder="VD: 450000" />
+        <div class="hint">Giá bán của brand gốc để so sánh.</div>
+      </div>
+      <div>
+        <label>Giá bán dự kiến của bạn — đ</label>
+        <input id="sellPrice" type="number" min="0" placeholder="Để trống = bằng brand gốc" />
+        <div class="hint">Mức giá bạn định bán ra.</div>
+      </div>
+      <div>
+        <label>Margin tối thiểu mong muốn — %</label>
+        <input id="minMargin" type="number" min="0" max="100" value="30" />
+        <div class="hint">Ngưỡng để gắn nhãn 🟢 / 🟡 / 🔴.</div>
+      </div>
+    </div>
+    <div class="grid p4" style="margin-top:14px">
+      <div>
+        <label>Số lượng MOQ thấp</label>
+        <input id="moqLow" type="number" min="1" value="20" />
+      </div>
+      <div>
+        <label>Số lượng MOQ cao</label>
+        <input id="moqHigh" type="number" min="1" value="100" />
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. NSX -->
+  <section class="card">
+    <h2><span class="n">2</span> Báo giá các nhà sản xuất (NSX)</h2>
+    <div style="overflow-x:auto">
+      <table class="nsx-table">
+        <thead>
+          <tr>
+            <th>Tên NSX</th>
+            <th>Đơn giá @MOQ thấp (đ)</th>
+            <th>Đơn giá @MOQ cao (đ)</th>
+            <th>Phí khuôn/setup 1 lần (đ)</th>
+            <th>Ship + thuế / đơn vị (đ)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="nsxBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="addNSX()">＋ Thêm NSX</button>
+      <button class="btn btn-ghost" onclick="loadSample()">Dùng dữ liệu mẫu</button>
+    </div>
+  </section>
+
+  <!-- 3. KẾT QUẢ -->
+  <div id="banner"></div>
+
+  <section class="card">
+    <h2><span class="n">3</span> Bảng so sánh &amp; quyết định</h2>
+    <div style="overflow-x:auto">
+      <table class="res-table">
+        <thead>
+          <tr>
+            <th>NSX</th>
+            <th>MOQ</th>
+            <th>Giá vốn/SP</th>
+            <th>Tổng vốn</th>
+            <th>LN/SP</th>
+            <th>Margin</th>
+            <th>Rẻ hơn brand gốc</th>
+            <th>Tổng LN (bán hết)</th>
+            <th>Hòa vốn</th>
+            <th>Quyết định</th>
+          </tr>
+        </thead>
+        <tbody id="resBody"></tbody>
+      </table>
+    </div>
+    <div class="foot" id="resNote"></div>
+  </section>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="saveData()">💾 Lưu</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">⬇️ Xuất CSV</button>
+    <button class="btn btn-ghost" onclick="clearAll()">🗑️ Xóa hết</button>
+  </div>
+  <p class="foot">Dữ liệu được lưu ngay trong trình duyệt của bạn (localStorage) — không gửi đi đâu cả.</p>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => isFinite(n) ? Math.round(n).toLocaleString('vi-VN') : '–';
+const pct = n => isFinite(n) ? n.toFixed(1) + '%' : '–';
+const num = v => { const x = parseFloat(v); return isFinite(x) ? x : 0; };
+
+let nsxList = [];
+let idSeq = 1;
+
+function addNSX(data){
+  const d = data || {name:'', low:'', high:'', setup:'', ship:''};
+  d._id = idSeq++;
+  nsxList.push(d);
+  renderNSX();
+}
+
+function delNSX(id){
+  nsxList = nsxList.filter(x => x._id !== id);
+  renderNSX();
+  compute();
+}
+
+function renderNSX(){
+  const body = $('nsxBody');
+  body.innerHTML = '';
+  nsxList.forEach(d => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text"   value="${d.name ?? ''}"  placeholder="Tên xưởng" oninput="upd(${d._id},'name',this.value)"></td>
+      <td><input type="number" value="${d.low ?? ''}"   placeholder="0" oninput="upd(${d._id},'low',this.value)"></td>
+      <td><input type="number" value="${d.high ?? ''}"  placeholder="0" oninput="upd(${d._id},'high',this.value)"></td>
+      <td><input type="number" value="${d.setup ?? ''}" placeholder="0" oninput="upd(${d._id},'setup',this.value)"></td>
+      <td><input type="number" value="${d.ship ?? ''}"  placeholder="0" oninput="upd(${d._id},'ship',this.value)"></td>
+      <td><button class="icon-del" title="Xóa" onclick="delNSX(${d._id})">×</button></td>`;
+    body.appendChild(tr);
+  });
+}
+
+function upd(id, key, val){
+  const d = nsxList.find(x => x._id === id);
+  if(d){ d[key] = val; compute(); }
+}
+
+function decide(margin, minMargin){
+  if(!isFinite(margin)) return {cls:'no', txt:'🔴 Thiếu dữ liệu'};
+  if(margin >= minMargin)      return {cls:'go',   txt:'🟢 NÊN LAUNCH'};
+  if(margin >= minMargin*0.6)  return {cls:'warn', txt:'🟡 CÂN NHẮC'};
+  return {cls:'no', txt:'🔴 KHÔNG'};
+}
+
+function compute(){
+  const brand = num($('brandPrice').value);
+  let sell = num($('sellPrice').value);
+  if(sell <= 0) sell = brand;                 // mặc định bán bằng giá brand gốc
+  const minMargin = num($('minMargin').value);
+  const moqLow = num($('moqLow').value) || 20;
+  const moqHigh = num($('moqHigh').value) || 100;
+
+  const rows = [];
+  nsxList.forEach(d => {
+    [[moqLow, num(d.low)], [moqHigh, num(d.high)]].forEach(([qty, unit]) => {
+      if(unit <= 0 || qty <= 0) return;
+      const ship = num(d.ship);
+      const setup = num(d.setup);
+      const cost = unit + ship + setup/qty;     // giá vốn thực / SP (phân bổ khuôn)
+      const totalInvest = cost * qty;
+      const profitU = sell - cost;
+      const margin = sell > 0 ? profitU/sell*100 : NaN;
+      const cheaper = brand > 0 ? (brand - cost)/brand*100 : NaN;
+      const totalProfit = profitU * qty;
+      const breakeven = profitU > 0 ? Math.ceil(totalInvest/sell) : NaN;
+      rows.push({name:d.name||'(chưa đặt tên)', qty, cost, totalInvest,
+                 profitU, margin, cheaper, totalProfit, breakeven,
+                 dec:decide(margin, minMargin)});
+    });
+  });
+
+  // tìm phương án tốt nhất theo margin (chỉ trong nhóm đạt ngưỡng nếu có)
+  let best = null;
+  rows.forEach(r => { if(isFinite(r.margin) && (!best || r.margin > best.margin)) best = r; });
+
+  renderResults(rows, best);
+  renderBanner(rows, best, minMargin, sell, brand);
+  saveData(true);
+}
+
+function renderResults(rows, best){
+  const body = $('resBody');
+  if(!rows.length){
+    body.innerHTML = '<tr><td colspan="10" class="empty-msg">Nhập báo giá NSX ở bảng trên để xem kết quả.</td></tr>';
+    return;
+  }
+  body.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if(best && r === best) tr.className = 'best-row';
+    const pc = v => `<span class="${v>=0?'pos':'neg'}">${fmt(v)}</span>`;
+    tr.innerHTML = `
+      <td>${best&&r===best?'<span class="star">★</span> ':''}${r.name}</td>
+      <td><span class="moq-tag">${r.qty}</span></td>
+      <td>${fmt(r.cost)}</td>
+      <td>${fmt(r.totalInvest)}</td>
+      <td>${pc(r.profitU)}</td>
+      <td>${pct(r.margin)}</td>
+      <td>${isFinite(r.cheaper)?`<span class="${r.cheaper>=0?'pos':'neg'}">${pct(r.cheaper)}</span>`:'–'}</td>
+      <td>${pc(r.totalProfit)}</td>
+      <td>${isFinite(r.breakeven)?r.breakeven+' SP':'–'}</td>
+      <td><span class="pill ${r.dec.cls}">${r.dec.txt}</span></td>`;
+    body.appendChild(tr);
+  });
+  $('resNote').textContent = 'Giá vốn/SP đã phân bổ phí khuôn theo số lượng MOQ. ★ = phương án margin cao nhất.';
+}
+
+function renderBanner(rows, best, minMargin, sell, brand){
+  const el = $('banner');
+  if(!rows.length){
+    el.innerHTML = `<div class="banner empty"><h3>Chưa đủ dữ liệu</h3>
+      <p>Nhập giá brand gốc và ít nhất 1 báo giá NSX để nhận khuyến nghị launching.</p></div>`;
+    return;
+  }
+  if(best.margin >= minMargin){
+    el.innerHTML = `<div class="banner"><h3>🟢 NÊN LAUNCH</h3>
+      <p>Phương án tốt nhất: <span class="big">${best.name} — MOQ ${best.qty}</span>.
+      Giá vốn <span class="big">${fmt(best.cost)}đ/SP</span>, bán ${fmt(sell)}đ →
+      lãi <span class="big">${fmt(best.profitU)}đ/SP (${pct(best.margin)})</span>${
+        isFinite(best.cheaper)?`, rẻ hơn brand gốc ${pct(best.cheaper)}`:''}.
+      Vốn đầu tư ${fmt(best.totalInvest)}đ, hòa vốn sau ${best.breakeven} SP,
+      tổng lãi nếu bán hết ${fmt(best.totalProfit)}đ.</p></div>`;
+  } else if(best.margin >= minMargin*0.6){
+    el.innerHTML = `<div class="banner" style="background:linear-gradient(135deg,#d97706,#b45309)">
+      <h3>🟡 CÂN NHẮC</h3>
+      <p>Tốt nhất hiện có: <span class="big">${best.name} — MOQ ${best.qty}</span>,
+      margin ${pct(best.margin)} (dưới ngưỡng ${minMargin}%). Cân nhắc đàm phán giá NSX,
+      tăng giá bán, hoặc chọn MOQ cao hơn để hạ giá vốn.</p></div>`;
+  } else {
+    el.innerHTML = `<div class="banner bad"><h3>🔴 CHƯA NÊN LAUNCH</h3>
+      <p>Phương án tốt nhất chỉ đạt margin ${pct(best.margin)} — quá thấp so với ngưỡng ${minMargin}%.
+      Giá vốn đang cao hơn kỳ vọng. Cần tìm NSX rẻ hơn hoặc xem lại giá bán.</p></div>`;
+  }
+}
+
+/* ---------- lưu / tải / xuất ---------- */
+const KEY = 'prodCostTool_v1';
+function saveData(silent){
+  const data = {
+    pName:$('pName').value, brandPrice:$('brandPrice').value, sellPrice:$('sellPrice').value,
+    minMargin:$('minMargin').value, moqLow:$('moqLow').value, moqHigh:$('moqHigh').value,
+    nsx:nsxList.map(({_id,...r})=>r)
+  };
+  localStorage.setItem(KEY, JSON.stringify(data));
+  if(!silent) flash('Đã lưu ✔');
+}
+function loadData(){
+  const raw = localStorage.getItem(KEY);
+  if(!raw){ addNSX(); addNSX(); return; }
+  try{
+    const d = JSON.parse(raw);
+    $('pName').value=d.pName||''; $('brandPrice').value=d.brandPrice||'';
+    $('sellPrice').value=d.sellPrice||''; $('minMargin').value=d.minMargin||'30';
+    $('moqLow').value=d.moqLow||'20'; $('moqHigh').value=d.moqHigh||'100';
+    nsxList=[]; (d.nsx&&d.nsx.length?d.nsx:[{},{}]).forEach(addNSX);
+  }catch(e){ addNSX(); addNSX(); }
+}
+function clearAll(){
+  if(!confirm('Xóa toàn bộ dữ liệu?')) return;
+  localStorage.removeItem(KEY);
+  ['pName','brandPrice','sellPrice'].forEach(i=>$(i).value='');
+  $('minMargin').value='30'; $('moqLow').value='20'; $('moqHigh').value='100';
+  nsxList=[]; addNSX(); addNSX(); compute();
+}
+function exportCSV(){
+  const rows=[['San pham',$('pName').value],['Gia brand goc',$('brandPrice').value],
+    ['Gia ban du kien',$('sellPrice').value||$('brandPrice').value],[],
+    ['NSX','MOQ','Gia von/SP','Tong von','LN/SP','Margin %','Re hon brand %','Tong LN','Hoa von','Quyet dinh']];
+  document.querySelectorAll('#resBody tr').forEach(tr=>{
+    const c=[...tr.children].map(td=>td.innerText.replace(/[★\s]+/g,' ').trim());
+    if(c.length===10) rows.push(c);
+  });
+  const csv='﻿'+rows.map(r=>r.map(x=>`"${x??''}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(($('pName').value||'bao-gia')+'.csv').replace(/\s+/g,'-');
+  a.click();
+}
+function loadSample(){
+  nsxList=[];
+  addNSX({name:'Xưởng A (HCM)', low:185000, high:142000, setup:1500000, ship:8000});
+  addNSX({name:'Xưởng B (Hà Nội)', low:175000, high:150000, setup:800000, ship:12000});
+  addNSX({name:'Xưởng C (Trung Quốc)', low:120000, high:95000, setup:3000000, ship:25000});
+  $('pName').value='Áo hoodie nỉ bông';
+  $('brandPrice').value=450000; $('sellPrice').value=350000; $('minMargin').value=35;
+  compute();
+}
+function flash(msg){
+  const d=document.createElement('div');
+  d.textContent=msg;
+  d.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:99';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),1500);
+}
+
+// recompute khi đổi thông số sản phẩm
+['brandPrice','sellPrice','minMargin','moqLow','moqHigh','pName'].forEach(id=>{
+  $(id).addEventListener('input', compute);
+});
+
+loadData();
+compute();
+</script>
+</body>
+</html>
