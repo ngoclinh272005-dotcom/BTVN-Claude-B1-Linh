@@ -1,5 +1,7 @@
 # 🏭 Avielora · Tính giá sản xuất & Quyết định Launching
 
+> 🔗 **Demo chạy thật (GitHub Pages):** https://ngoclinh272005-dotcom.github.io/BTVN-Claude-B1-Linh/
+
 Mini tool web giúp **so sánh giá sản xuất từ nhiều NSX (nhà sản xuất) ở MOQ 20 / 100**, đối chiếu với **giá sản xuất mong muốn** (suy ra từ giá brand gốc), và đưa ra **quyết định có nên launch sản phẩm hay không**.
 
 Giao diện theo brand **Avielora**: font Lora (heading) + Inter (body), màu chủ đạo `#321646`, logo ở đầu trang.
